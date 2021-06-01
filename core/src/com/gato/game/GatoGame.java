@@ -31,14 +31,13 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
 
     static final int RAYS_PER_BALL = 128;
-    static final int BALLSNUM = 10;
+    static final int BALLSNUM = 15;
     static final float LIGHT_DISTANCE = 16f;
     static final float RADIUS = 1f;
 
     OrthographicCamera camera;
 
     SpriteBatch batch;
-    Texture img;
     Texture bg;
     Music music;
     BitmapFont font;
@@ -58,19 +57,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     static final float viewportWidth = 48;
     static final float viewportHeight = 32;
 
-    static class Gato {
-        int width = 23;
-        int height = 15;
-        float x;
-        float y;
-
-        public Gato(float x, float y) {
-            this.x = x - width / 2f;
-            this.y = y;
-        }
-    }
-
-    Gato gato = new Gato(-viewportWidth / 2f, 0);
+    Gato gato;
 
     @Override
     public void create() {
@@ -81,8 +68,8 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         batch = new SpriteBatch();
         font = new BitmapFont();
         font.setColor(Color.RED);
-        img = new Texture("myaaau.gif");
         bg = new Texture(Gdx.files.internal("bg.png"));
+        gato = new Gato(-viewportWidth / 2f);
 
         createPhysicsWorld();
         Gdx.input.setInputProcessor(this);
@@ -116,7 +103,8 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         {
             batch.draw(bg, -viewportWidth / 2f, 0, viewportWidth, viewportHeight);
             batch.enableBlending();
-            batch.draw(img, gato.x, gato.y, gato.width, gato.height);
+            batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
+//            batch.draw(img, gato.x, gato.y, gato.width, gato.height);
         }
         batch.end();
 
@@ -146,7 +134,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         // translate the mouse coordinates to world coordinates
         testPoint.set(x, y, 0);
         camera.unproject(testPoint);
-        gato = new Gato(testPoint.x, 0);
+        gato.updatePosition(testPoint.x);
 
         // ask the world which bodies are within the given
         // bounding box around the mouse pointer
@@ -177,7 +165,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     public boolean touchDragged(int x, int y, int pointer) {
         camera.unproject(testPoint.set(x, y, 0));
         target.set(testPoint.x, testPoint.y);
-        gato = new Gato(testPoint.x, 0);
+        gato.updatePosition(testPoint.x);
         if (mouseJoint != null) {
             mouseJoint.setTarget(target);
         }
@@ -300,10 +288,10 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
         music.dispose();
         font.dispose();
         rayHandler.dispose();
+        gato.dispose();
     }
 
     private void setMusic() {
@@ -317,13 +305,13 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
             @Override
             public void run() {
-                music.setVolume(volume += 0.01);
+                music.setVolume(volume += 0.05);
                 music.play();
-                if (volume >= 0.1) {
+                if (volume >= 1) {
                     service.shutdown();
                 }
             }
-        }, 8, 1, TimeUnit.SECONDS);
+        }, 3, 1, TimeUnit.SECONDS);
     }
 
 }

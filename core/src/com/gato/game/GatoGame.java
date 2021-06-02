@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,8 +31,8 @@ import java.util.concurrent.TimeUnit;
 public class GatoGame extends InputAdapter implements ApplicationListener {
 
 
-    static final int RAYS_PER_BALL = 128;
-    static final int BALLSNUM = 15;
+    static final int RAYS_PER_BALL = 1128;
+    static final int BALLSNUM = 10;
     static final float LIGHT_DISTANCE = 16f;
     static final float RADIUS = 1f;
 
@@ -58,6 +59,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     static final float viewportHeight = 32;
 
     Gato gato;
+    HashMap<Integer, Vector2> movePosition = new HashMap<>();
 
     @Override
     public void create() {
@@ -104,14 +106,36 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
             batch.draw(bg, -viewportWidth / 2f, 0, viewportWidth, viewportHeight);
             batch.enableBlending();
             batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
-//            batch.draw(img, gato.x, gato.y, gato.width, gato.height);
         }
         batch.end();
 
+        for (int i = 0; i < balls.size(); i++) {
+            Vector2 move = movePosition.putIfAbsent(i, new Vector2(MathUtils.random(-35, 23), MathUtils.random(0, viewportHeight)));
+            Body ball = balls.get(i);
+            Vector2 position = ball.getPosition();
+            if (move == null) continue;
+            float x = 0;
+            float y = 0;
+            if (position.x < move.x) {
+                x = position.x + 0.02f;
+            }
+            if (position.x > move.x) {
+                x = position.x - 0.02f;
+            }
+            if (position.y < move.y) {
+                y = position.y + 0.02f;
+            }
+            if (position.y > move.y) {
+                y = position.y - 0.02f;
+            }
+            ball.setTransform(x, y, 0);
+            if (Math.abs(position.x - move.x) <= 0.1f) {
+                movePosition.remove(i);
+            }
+        }
         rayHandler.setCombinedMatrix(camera);
         if (stepped) rayHandler.update();
         rayHandler.render();
-
     }
 
     Vector3 testPoint = new Vector3();
@@ -139,8 +163,8 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         // ask the world which bodies are within the given
         // bounding box around the mouse pointer
         hitBody = null;
-        world.QueryAABB(callback, testPoint.x - 0.1f, testPoint.y - 0.1f,
-                testPoint.x + 0.1f, testPoint.y + 0.1f);
+        world.QueryAABB(callback, testPoint.x - 0.3f, testPoint.y - 0.3f,
+                testPoint.x + 0.3f, testPoint.y + 0.3f);
 
         // if we hit something we create a new mouse joint
         // and attach it to the hit body.
@@ -187,8 +211,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     void initPointLights() {
         clearLights();
         for (int i = 0; i < BALLSNUM; i++) {
-            PointLight light = new PointLight(
-                    rayHandler, RAYS_PER_BALL, null, LIGHT_DISTANCE, 0f, 0f);
+            PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, null, LIGHT_DISTANCE, 0f, 0f);
             light.attachToBody(balls.get(i), RADIUS / 2f, RADIUS / 2f);
             light.setColor(
                     MathUtils.random(),

@@ -12,14 +12,14 @@ public class Gato {
     Texture walkSheet;
     float stateTime;
 
-    int width = 23;
-    int height = 15;
+    int width = 16;
+    int height = 10;
     float x;
     float y;
 
     public Gato(float x) {
         this.x = x - width / 2f;
-        this.y = 0;
+        this.y = 1;
 
         walkSheet = new Texture(Gdx.files.internal("gato-sprite.png"));
 
@@ -42,6 +42,10 @@ public class Gato {
     }
 
     public TextureRegion texture() {
+        x += Gdx.graphics.getDeltaTime() * 3;
+        if (x > 23){
+            x = -38;
+        }
         return walkAnimation.getKeyFrame(stateTime += Gdx.graphics.getDeltaTime(), true);
     }
 

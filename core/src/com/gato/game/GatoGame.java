@@ -71,7 +71,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         bg = new Texture(Gdx.files.internal("bg.png"));
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         bg.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
+        font = new BitmapFont();
         gato = new Gato(-viewportWidth / 2f);
 
         createPhysicsWorld();
@@ -103,17 +103,19 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
         batch.setProjectionMatrix(camera.combined);
         batch.disableBlending();
-
-
-        batch.begin();
-
         if (sourceX > 1000000) sourceX = 0;
         sourceX += 1;
 
+        batch.begin();
         batch.draw(bg, -viewportWidth / 2, 0, 5, 5, 48, 32, 1, 1, 0, sourceX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, false);
         batch.enableBlending();
         batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
 
+        batch.end();
+
+        batch.setProjectionMatrix(normalProjection);
+        batch.begin();
+        font.draw(batch, "gato", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         batch.end();
 
         for (int i = 0; i < balls.size(); i++) {
@@ -357,7 +359,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
     private void createPhysicsWorld() {
 
-        world = new World(new Vector2(0, 0), true);
+        world = new World(new Vector2(0, -10), true);
 
         float halfWidth = viewportWidth / 2f;
         ChainShape chainShape = new ChainShape();

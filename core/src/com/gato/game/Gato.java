@@ -37,12 +37,12 @@ public class Gato {
             }
         }
 
-        walkAnimation = new Animation<>(0.05f, walkFrames);
+        walkAnimation = new Animation<>(0.02f, walkFrames);
         stateTime = 0f;
     }
 
     public TextureRegion texture() {
-        x += Gdx.graphics.getDeltaTime() * 3;
+        x += Gdx.graphics.getDeltaTime() * 7;
         if (x > 23){
             x = -38;
         }

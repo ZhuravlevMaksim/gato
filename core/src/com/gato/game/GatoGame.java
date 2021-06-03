@@ -1,18 +1,17 @@
 package com.gato.game;
 
-import box2dLight.Light;
-import box2dLight.PointLight;
-import box2dLight.RayHandler;
+import box2dLight.*;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -40,6 +39,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
     SpriteBatch batch;
     Texture bg;
+    TextureRegion bgt;
     Music music;
     BitmapFont font;
 
@@ -68,9 +68,10 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         camera.position.set(0, viewportHeight / 2f, 0);
         camera.update();
         batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.setColor(Color.RED);
         bg = new Texture(Gdx.files.internal("bg.png"));
+        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        bg.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
         gato = new Gato(-viewportWidth / 2f);
 
         createPhysicsWorld();
@@ -85,10 +86,12 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         rayHandler.setAmbientLight(0f, 0f, 0f, 0.5f);
         rayHandler.setBlurNum(3);
 
-        initPointLights();
+        initDirectionalLight();
 
         setMusic();
     }
+
+    int sourceX = 0;
 
     @Override
     public void render() {
@@ -101,12 +104,16 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         batch.setProjectionMatrix(camera.combined);
         batch.disableBlending();
 
+
         batch.begin();
-        {
-            batch.draw(bg, -viewportWidth / 2f, 0, viewportWidth, viewportHeight);
-            batch.enableBlending();
-            batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
-        }
+
+        if (sourceX > 1000000) sourceX = 0;
+        sourceX += 1;
+
+        batch.draw(bg, -viewportWidth / 2, 0, 5, 5, 48, 32, 1, 1, 0, sourceX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, false);
+        batch.enableBlending();
+        batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
+
         batch.end();
 
         for (int i = 0; i < balls.size(); i++) {
@@ -194,6 +201,122 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
             mouseJoint.setTarget(target);
         }
         return false;
+    }
+
+    /**
+     * Type of lights to use:
+     * 0 - PointLight
+     * 1 - ConeLight
+     * 2 - ChainLight
+     * 3 - DirectionalLight
+     */
+    int lightsType = 3;
+
+    @Override
+    public boolean keyDown(int keycode) {
+        switch (keycode) {
+
+            case Input.Keys.F1:
+                if (lightsType != 0) {
+                    initPointLights();
+                    lightsType = 0;
+                }
+                return true;
+
+            case Input.Keys.F2:
+                if (lightsType != 1) {
+                    initConeLights();
+                    lightsType = 1;
+                }
+                return true;
+
+            case Input.Keys.F3:
+                if (lightsType != 2) {
+                    initChainLights();
+                    lightsType = 2;
+                }
+                return true;
+
+            case Input.Keys.F4:
+                if (lightsType != 3) {
+                    initDirectionalLight();
+                    lightsType = 3;
+                }
+                return true;
+
+            case Input.Keys.F5:
+                for (Light light : lights)
+                    light.setColor(
+                            MathUtils.random(),
+                            MathUtils.random(),
+                            MathUtils.random(),
+                            1f);
+                return true;
+
+            case Input.Keys.F6:
+                for (Light light : lights)
+                    light.setDistance(MathUtils.random(LIGHT_DISTANCE * 0.5f, LIGHT_DISTANCE * 2f));
+                return true;
+
+            case Input.Keys.F9:
+                rayHandler.diffuseBlendFunc.reset();
+                return true;
+
+            case Input.Keys.F10:
+                rayHandler.diffuseBlendFunc.set(GL20.GL_DST_COLOR, GL20.GL_SRC_COLOR);
+                return true;
+
+            case Input.Keys.F11:
+                rayHandler.diffuseBlendFunc.set(GL20.GL_SRC_COLOR, GL20.GL_DST_COLOR);
+                return true;
+
+            default:
+                return false;
+
+        }
+    }
+
+    void initConeLights() {
+        clearLights();
+        for (int i = 0; i < BALLSNUM; i++) {
+            ConeLight light = new ConeLight(rayHandler, RAYS_PER_BALL, null, LIGHT_DISTANCE, 0, 0, 0f, MathUtils.random(15f, 40f));
+            light.attachToBody(balls.get(i), RADIUS / 2f, RADIUS / 2f, MathUtils.random(0f, 360f));
+            light.setColor(
+                    MathUtils.random(),
+                    MathUtils.random(),
+                    MathUtils.random(),
+                    1f);
+            lights.add(light);
+        }
+    }
+
+    void initChainLights() {
+        clearLights();
+        for (int i = 0; i < BALLSNUM; i++) {
+            ChainLight light = new ChainLight(rayHandler, RAYS_PER_BALL, null, LIGHT_DISTANCE, 1, new float[]{-5, 0, 0, 3, 5, 0});
+            light.attachToBody(
+                    balls.get(i),
+                    MathUtils.random(0f, 360f));
+            light.setColor(
+                    MathUtils.random(),
+                    MathUtils.random(),
+                    MathUtils.random(),
+                    1f);
+            lights.add(light);
+        }
+    }
+
+    float sunDirection = -90f;
+
+    void initDirectionalLight() {
+        clearLights();
+
+        groundBody.setActive(false);
+        sunDirection = MathUtils.random(0f, 360f);
+
+        DirectionalLight light = new DirectionalLight(
+                rayHandler, 4 * RAYS_PER_BALL, null, sunDirection);
+        lights.add(light);
     }
 
     @Override
@@ -337,4 +460,9 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         }, 3, 1, TimeUnit.SECONDS);
     }
 
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        camera.rotate(amountY * 3f, 0, 0, 1);
+        return false;
+    }
 }

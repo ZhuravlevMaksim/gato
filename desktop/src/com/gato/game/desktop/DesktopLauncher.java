@@ -1,15 +1,15 @@
 package com.gato.game.desktop;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.gato.game.GatoGame;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "Gato";
-		config.width = 800;
-		config.height = 480;
-		new LwjglApplication(new GatoGame(), config);
-	}
+    public static void main(String[] arg) {
+        Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+        config.setTitle("Gato");
+        config.setWindowedMode(800, 480);
+        new Lwjgl3Application(new GatoGame(), config);
+    }
 }

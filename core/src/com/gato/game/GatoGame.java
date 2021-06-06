@@ -104,9 +104,8 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     private void setText() {
         Table table = new Table();
         table.setFillParent(true);
-        label = new TypingLabel("{EASE}{SPEED=SLOWER}Hello{WAIT}, traveler{SPEED}\n" +
-                "Your journey begins here \n" +
-                "{SPEED=0.2}... with {SPEED=0.1} {SHAKE}gato{ENDSHAKE}",
+        label = new TypingLabel("{EASE}{SPEED=SLOWER}Hello{WAIT=2}, traveler{SPEED}.\n" +
+                "Your journey begins here {SPEED=0.2}{WAIT=2} with ... {SPEED=0.1}{SHAKE}gato{ENDSHAKE}.",
                 new Skin(Gdx.files.internal("uiskin.json")));
 
         table.add(label).top().center().expand();

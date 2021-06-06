@@ -25,6 +25,7 @@ allprojects {
         appName = "gato"
         gdxVersion = '1.10.0'
         roboVMVersion = '2.3.12'
+        typingLabelVersion='1.2.0'
         box2DLightsVersion = '1.5'
         ashleyVersion = '1.7.3'
         aiVersion = '1.8.2'
@@ -102,6 +103,6 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-        
+        api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
     }
 }

@@ -19,6 +19,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,8 +62,11 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     static final float viewportWidth = 48;
     static final float viewportHeight = 32;
 
+    TypingLabel label;
+
     Gato gato;
     HashMap<Integer, Vector2> movePosition = new HashMap<>();
+    Stage stage;
 
     @Override
     public void create() {
@@ -86,10 +93,27 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         rayHandler.setAmbientLight(0f, 0f, 0f, 0.5f);
         rayHandler.setBlurNum(3);
 
+        stage = new Stage();
+        setText();
+
         initDirectionalLight();
 
         setMusic();
     }
+
+    private void setText() {
+        Table table = new Table();
+        table.setFillParent(true);
+        label = new TypingLabel("{EASE}{SPEED=SLOWER}Hello{WAIT}, traveler{SPEED}\n" +
+                "Your journey begins here \n" +
+                "{SPEED=0.2}... with {SPEED=0.1} {SHAKE}gato{ENDSHAKE}",
+                new Skin(Gdx.files.internal("uiskin.json")));
+
+        table.add(label).top().center().expand();
+
+        stage.addActor(table);
+    }
+
 
     int sourceX = 0;
 
@@ -110,12 +134,13 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         batch.draw(bg, -viewportWidth / 2, 0, 5, 5, 48, 32, 1, 1, 0, sourceX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, false);
         batch.enableBlending();
         batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
-
         batch.end();
 
         batch.setProjectionMatrix(normalProjection);
+
         batch.begin();
-        font.draw(batch, "gato", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        stage.act();
+        stage.draw();
         batch.end();
 
         for (int i = 0; i < balls.size(); i++) {

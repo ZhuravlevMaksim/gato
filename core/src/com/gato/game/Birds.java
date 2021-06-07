@@ -17,24 +17,20 @@ public class Birds {
 
     private static List<Bird> activeBirds = new ArrayList<>();
     private static Pool<Bird> birdPool;
-    public static Sprite birdTexture;
+    public static Texture birdTexture;
+    public static int birdsCount;
 
     public Birds() {
         birdPool = Pools.get(Bird.class);
-        birdTexture = new Sprite(new Texture(Gdx.files.internal("bird-blue.png")));
-        birdTexture.flip(true, false);
+        birdTexture = new Texture(Gdx.files.internal("bird-blue.png"));
     }
-
-    int birdsCount = 6;
 
     public List<Bird> getBirds() {
         activeBirds = activeBirds.stream().filter(bird -> bird.active).collect(Collectors.toList());
         if (activeBirds.size() == 0) {
+            birdsCount = MathUtils.random(2, 17);
             for (int i = 0; i < birdsCount; i++) {
                 activeBirds.add(birdPool.obtain());
-            }
-            if (birdsCount < 40) {
-                birdsCount++;
             }
         }
 
@@ -46,16 +42,19 @@ public class Birds {
         public Vector2 position;
         private boolean active;
         private boolean flyUp = true;
+        public Sprite birdSprite;
 
         public Bird() {
-            this.position = randCors();
             active = true;
-            float random = MathUtils.random(1, 3.5f);
-            birdTexture.setSize(random, random);
+            this.position = randCors();
+            float random = MathUtils.random(1.5f, 2.5f);
+            birdSprite = new Sprite(birdTexture);
+            birdSprite.setSize(random, random);
+            birdSprite.flip(true, false);
         }
 
         private Vector2 randCors() {
-            return new Vector2(MathUtils.random(26, 36), MathUtils.random(16, 30));
+            return new Vector2(MathUtils.random(27, 27 + birdsCount * 2), MathUtils.random(16, 30));
         }
 
         @Override
@@ -65,22 +64,23 @@ public class Birds {
 
         public void draw(Batch batch) {
             update(Gdx.graphics.getDeltaTime());
-            birdTexture.draw(batch);
+            birdSprite.draw(batch);
         }
 
-        int flyPowerUp = MathUtils.random(21, 30);
-        int flyPowerDown = MathUtils.random(16, 20);
-        int flySpeed = MathUtils.random(11, 12);
+        int flyPowerUp = 27;
+        int flyPowerDown = 18;
+        int flySpeedX = MathUtils.random(11, 12);
+        int flySpeedY = MathUtils.random(1, 2);
 
         public void update(float delta) {
-            position.x -= delta * flySpeed;
+            position.x -= delta * flySpeedX;
             if (position.y > flyPowerUp) {
                 flyUp = false;
             } else if (position.y < flyPowerDown) {
                 flyUp = true;
             }
-            position.y = flyUp ? position.y + delta * 2 : position.y - delta * 2;
-            birdTexture.setPosition(position.x, position.y);
+            position.y = flyUp ? position.y + delta * flySpeedY : position.y - delta * 2 * flySpeedY;
+            birdSprite.setPosition(position.x, position.y);
 
             if (isOutOfScreen()) {
                 birdPool.free(this);

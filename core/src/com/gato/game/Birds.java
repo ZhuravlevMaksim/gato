@@ -3,6 +3,7 @@ package com.gato.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
@@ -16,14 +17,15 @@ public class Birds {
 
     private static List<Bird> activeBirds = new ArrayList<>();
     private static Pool<Bird> birdPool;
-    public static Texture birdTexture;
+    public static Sprite birdTexture;
 
     public Birds() {
         birdPool = Pools.get(Bird.class);
-        birdTexture = new Texture(Gdx.files.internal("bird-blue.png"));
+        birdTexture = new Sprite(new Texture(Gdx.files.internal("bird-blue.png")));
+        birdTexture.flip(true, false);
     }
 
-    int birdsCount = 8;
+    int birdsCount = 6;
 
     public List<Bird> getBirds() {
         activeBirds = activeBirds.stream().filter(bird -> bird.active).collect(Collectors.toList());
@@ -43,14 +45,17 @@ public class Birds {
 
         public Vector2 position;
         private boolean active;
+        private boolean flyUp = true;
 
         public Bird() {
             this.position = randCors();
             active = true;
+            float random = MathUtils.random(1, 3.5f);
+            birdTexture.setSize(random, random);
         }
 
         private Vector2 randCors() {
-            return new Vector2(MathUtils.random(-54, -22), MathUtils.random(-18, -6));
+            return new Vector2(MathUtils.random(26, 36), MathUtils.random(16, 30));
         }
 
         @Override
@@ -60,12 +65,22 @@ public class Birds {
 
         public void draw(Batch batch) {
             update(Gdx.graphics.getDeltaTime());
-            batch.draw(birdTexture, position.x, position.y, 2, 2);
+            birdTexture.draw(batch);
         }
 
-        public void update(float delta) {
+        int flyPowerUp = MathUtils.random(21, 30);
+        int flyPowerDown = MathUtils.random(16, 20);
+        int flySpeed = MathUtils.random(11, 12);
 
-            position.add(1 * delta * MathUtils.random(10, 12), 1 * delta * MathUtils.random(4, 8));
+        public void update(float delta) {
+            position.x -= delta * flySpeed;
+            if (position.y > flyPowerUp) {
+                flyUp = false;
+            } else if (position.y < flyPowerDown) {
+                flyUp = true;
+            }
+            position.y = flyUp ? position.y + delta * 2 : position.y - delta * 2;
+            birdTexture.setPosition(position.x, position.y);
 
             if (isOutOfScreen()) {
                 birdPool.free(this);
@@ -74,7 +89,7 @@ public class Birds {
         }
 
         private boolean isOutOfScreen() {
-            return position.y > 33 || position.x > 26;
+            return position.x < -26;
         }
 
     }

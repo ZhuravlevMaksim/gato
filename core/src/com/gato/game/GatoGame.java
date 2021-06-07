@@ -71,7 +71,6 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
     @Override
     public void create() {
-        MathUtils.random.setSeed(Long.MIN_VALUE);
         camera = new OrthographicCamera(viewportWidth, viewportHeight);
         camera.position.set(0, viewportHeight / 2f, 0);
         camera.update();

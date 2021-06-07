@@ -98,7 +98,8 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
         initDirectionalLight();
 
-        setMusic();
+        world = new World(new Vector2(0, -10), true);
+        setMusic(world, 0);
     }
 
     private void setText() {
@@ -466,24 +467,29 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         gato.dispose();
     }
 
-    private void setMusic() {
-        world = new World(new Vector2(0, -10), true);
-        music = Gdx.audio.newMusic(Gdx.files.internal("1.mp3"));
+    private void setMusic(World world, Integer initialDelay) {
+
+        music = Gdx.audio.newMusic(Gdx.files.internal("bensound-onceagain.mp3"));
         music.setLooping(true);
 
-        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        service.scheduleWithFixedDelay(new Runnable() {
-            float volume = 0;
+        if (initialDelay > 0) {
+            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+            service.scheduleWithFixedDelay(new Runnable() {
+                float volume = 0;
 
-            @Override
-            public void run() {
-                music.setVolume(volume += 0.05);
-                music.play();
-                if (volume >= 1) {
-                    service.shutdown();
+                @Override
+                public void run() {
+                    music.setVolume(volume += 0.05);
+                    music.play();
+                    if (volume >= 1) {
+                        service.shutdown();
+                    }
                 }
-            }
-        }, 3, 1, TimeUnit.SECONDS);
+            }, initialDelay, 1, TimeUnit.SECONDS);
+        } else {
+            music.play();
+        }
+
     }
 
     @Override

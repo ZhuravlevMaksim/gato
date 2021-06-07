@@ -26,6 +26,7 @@ import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +68,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     Gato gato;
     HashMap<Integer, Vector2> movePosition = new HashMap<>();
     Stage stage;
+    Birds birdsNest;
 
     @Override
     public void create() {
@@ -80,6 +82,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         bg.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         font = new BitmapFont();
         gato = new Gato(-viewportWidth / 2f);
+        birdsNest = new Birds();
 
         createPhysicsWorld();
         Gdx.input.setInputProcessor(this);
@@ -130,10 +133,15 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         if (sourceX > 1000000) sourceX = 0;
         sourceX += 1;
 
+        List<Birds.Bird> birds = birdsNest.getBirds();
+
         batch.begin();
         batch.draw(bg, -viewportWidth / 2, 0, 5, 5, 48, 32, 1, 1, 0, sourceX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, false);
         batch.enableBlending();
         batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
+
+        birds.forEach(bird -> bird.draw(batch));
+
         batch.end();
 
         batch.setProjectionMatrix(normalProjection);
@@ -192,7 +200,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         // translate the mouse coordinates to world coordinates
         testPoint.set(x, y, 0);
         camera.unproject(testPoint);
-        gato.updatePosition(testPoint.x);
+//        gato.updatePosition(testPoint.x);
 
         // ask the world which bodies are within the given
         // bounding box around the mouse pointer
@@ -223,7 +231,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     public boolean touchDragged(int x, int y, int pointer) {
         camera.unproject(testPoint.set(x, y, 0));
         target.set(testPoint.x, testPoint.y);
-        gato.updatePosition(testPoint.x);
+//        gato.updatePosition(testPoint.x);
         if (mouseJoint != null) {
             mouseJoint.setTarget(target);
         }

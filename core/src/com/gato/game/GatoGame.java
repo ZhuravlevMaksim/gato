@@ -36,7 +36,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
 
     static final int RAYS_PER_BALL = 1128;
-    static final int BALLSNUM = 10;
+    static final int BALLSNUM = 8;
     static final float LIGHT_DISTANCE = 16f;
     static final float RADIUS = 1f;
 
@@ -44,7 +44,6 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
     SpriteBatch batch;
     Texture bg;
-    TextureRegion bgt;
     Music music;
     BitmapFont font;
 
@@ -171,6 +170,9 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
                 y = position.y - 0.02f;
             }
             ball.setTransform(x, y, 0);
+            if (lightsType == 3){
+                ball.setTransform(x, 32, 0);
+            }
             if (Math.abs(position.x - move.x) <= 0.1f) {
                 movePosition.remove(i);
             }
@@ -347,10 +349,9 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         clearLights();
 
         groundBody.setActive(false);
-        sunDirection = MathUtils.random(0f, 360f);
+        sunDirection = 240f;
 
-        DirectionalLight light = new DirectionalLight(
-                rayHandler, 4 * RAYS_PER_BALL, null, sunDirection);
+        DirectionalLight light = new DirectionalLight(rayHandler, 4 * RAYS_PER_BALL, null, sunDirection);
         lights.add(light);
     }
 

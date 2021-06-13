@@ -12,27 +12,26 @@ public class Meow extends Image {
     ParticleEffect effect;
 
     public Meow() {
-        super(new Texture("meow.png"));
-
+//        super(new Texture("meow.png"));
         TextureAtlas textureAtlas = new TextureAtlas();
-        textureAtlas.addRegion("meow",new TextureRegion(new Texture("meow.png")));
+        textureAtlas.addRegion("meow", new TextureRegion(new Texture("meow.png")));
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("meow.p"), textureAtlas);
         effect.start();
-        effect.setPosition(this.getWidth() / 2 + this.getX(), this.getHeight() / 2 + this.getY());
+    }
+
+    public void setPosition(float x, float y) {
+        effect.setPosition(x, y);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
         effect.draw(batch);
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
-        effect.setPosition(this.getWidth() / 2 + this.getX(), this.getHeight() / 2 + this.getY());
         effect.update(delta);
-
     }
 }

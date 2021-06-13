@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         bg.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         font = new BitmapFont();
-        gato = new Gato(-viewportWidth / 2f);
+        gato = new Gato();
         birdsNest = new Birds();
         meow = new Meow();
 
@@ -96,7 +97,9 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         rayHandler.setAmbientLight(0f, 0f, 0f, 0.5f);
         rayHandler.setBlurNum(3);
 
-        stage = new Stage();
+        stage = new Stage(new ScreenViewport());
+        stage.addActor(gato);
+        stage.addActor(meow);
         setText();
 
         initDirectionalLight();
@@ -138,13 +141,14 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         batch.begin();
         batch.draw(bg, -viewportWidth / 2, 0, 5, 5, 48, 32, 1, 1, 0, sourceX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, false);
         batch.enableBlending();
-        batch.draw(gato.texture(), gato.x, gato.y, gato.width, gato.height);
 
         birds.forEach(bird -> bird.draw(batch));
 
         batch.end();
 
         batch.setProjectionMatrix(normalProjection);
+        meow.setPosition(gato.x + gato.width - 40, gato.y + gato.height / 2f);
+
 
         batch.begin();
         stage.act();
@@ -474,7 +478,6 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         music.dispose();
         font.dispose();
         rayHandler.dispose();
-        gato.dispose();
     }
 
     private void setMusic(World world, Integer initialDelay) {

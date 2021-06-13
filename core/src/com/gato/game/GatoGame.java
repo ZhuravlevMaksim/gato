@@ -68,6 +68,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     HashMap<Integer, Vector2> movePosition = new HashMap<>();
     Stage stage;
     Birds birdsNest;
+    Meow meow;
 
     @Override
     public void create() {
@@ -81,6 +82,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         font = new BitmapFont();
         gato = new Gato(-viewportWidth / 2f);
         birdsNest = new Birds();
+        meow = new Meow();
 
         createPhysicsWorld();
         Gdx.input.setInputProcessor(this);

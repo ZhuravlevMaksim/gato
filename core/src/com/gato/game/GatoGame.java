@@ -93,7 +93,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         initDirectionalLight();
 
         world = new World(new Vector2(0, -10), true);
-        setMusic(0);
+        setMusic(0, "bensound-ukulele.mp3");
     }
 
     private void setText() {
@@ -114,7 +114,6 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     public void render() {
         camera.update();
 
-        boolean stepped = fixedStep(Gdx.graphics.getDeltaTime());
         Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -149,7 +148,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
             ball.setTransform(position.x -= Gdx.graphics.getDeltaTime() * 5, 32, 0);
         }
         rayHandler.setCombinedMatrix(camera);
-        if (stepped) rayHandler.update();
+        rayHandler.update();
         rayHandler.render();
     }
 
@@ -189,13 +188,8 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
     private void createPhysicsWorld() {
         world = new World(new Vector2(0, -10), true);
         CircleShape ballShape = new CircleShape();
-        ballShape.setRadius(MathUtils.random(1f, 4f));
 
-        FixtureDef def = new FixtureDef();
-        def.restitution = 0.3f;
-        def.friction = 0.01f;
-        def.shape = ballShape;
-        def.density = 0.2f;
+        FixtureDef fixture = fixture(MathUtils.random(1f, 4f));
 
         BodyDef boxBodyDef = new BodyDef();
         boxBodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -204,7 +198,7 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
             boxBodyDef.position.x = MathUtils.random(-25, 60);
             boxBodyDef.position.y = 32;
             Body boxBody = world.createBody(boxBodyDef);
-            boxBody.createFixture(def);
+            boxBody.createFixture(fixture);
             balls.add(boxBody);
         }
         ballShape.dispose();
@@ -220,29 +214,6 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
     }
 
-    float physicsTimeLeft;
-    private final static int MAX_FPS = 30;
-    private final static int MIN_FPS = 15;
-    public final static float TIME_STEP = 1f / MAX_FPS;
-    private final static float MAX_STEPS = 1f + MAX_FPS / MIN_FPS;
-    private final static float MAX_TIME_PER_FRAME = TIME_STEP * MAX_STEPS;
-    private final static int VELOCITY_ITERS = 6;
-    private final static int POSITION_ITERS = 2;
-
-    private boolean fixedStep(float delta) {
-        physicsTimeLeft += delta;
-        if (physicsTimeLeft > MAX_TIME_PER_FRAME)
-            physicsTimeLeft = MAX_TIME_PER_FRAME;
-
-        boolean stepped = false;
-        while (physicsTimeLeft >= TIME_STEP) {
-            world.step(TIME_STEP, VELOCITY_ITERS, POSITION_ITERS);
-            physicsTimeLeft -= TIME_STEP;
-            stepped = true;
-        }
-        return stepped;
-    }
-
     @Override
     public void dispose() {
         batch.dispose();
@@ -250,9 +221,9 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
         rayHandler.dispose();
     }
 
-    private void setMusic(Integer initialDelay) {
+    private void setMusic(Integer initialDelay, String song) {
 
-        music = Gdx.audio.newMusic(Gdx.files.internal("bensound-onceagain.mp3"));
+        music = Gdx.audio.newMusic(Gdx.files.internal(song));
         music.setLooping(true);
 
         if (initialDelay > 0) {
@@ -275,10 +246,52 @@ public class GatoGame extends InputAdapter implements ApplicationListener {
 
     }
 
+    boolean night = false;
+    boolean day = true;
     @Override
     public boolean scrolled(float amountX, float amountY) {
         ambient += amountY / 100;
+        if (ambient > 1) ambient = 1;
+        if (ambient < 0) ambient = 0;
+
         rayHandler.setAmbientLight(ambient, ambient, ambient, 0.5f);
+
+        if (ambient < 0.1 && !night){
+            music.stop();
+            night = true;
+            day = false;
+            setMusic(0, "bensound-ofeliasdream.mp3");
+
+            for (Body ball : balls) {
+                ball.createFixture(fixture(6f));
+            }
+
+        }
+
+        if (ambient > 0.3 && !day){
+            music.stop();
+            night = false;
+            day = true;
+            setMusic(0, "bensound-cute.mp3");
+
+            for (Body ball : balls) {
+                ball.createFixture(fixture(MathUtils.random(1f, 4f)));
+            }
+        }
+
         return false;
+    }
+
+    private FixtureDef fixture(float radius){
+        CircleShape ballShape = new CircleShape();
+        ballShape.setRadius(radius);
+
+        FixtureDef def = new FixtureDef();
+        def.restitution = 0.3f;
+        def.friction = 0.01f;
+        def.shape = ballShape;
+        def.density = 0.2f;
+
+        return def;
     }
 }

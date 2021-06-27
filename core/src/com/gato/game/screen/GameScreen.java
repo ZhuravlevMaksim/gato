@@ -1,4 +1,4 @@
-package com.gato.game;
+package com.gato.game.screen;
 
 import box2dLight.DirectionalLight;
 import box2dLight.RayHandler;
@@ -18,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.gato.game.Birds;
+import com.gato.game.Meow;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import de.eskalon.commons.screen.ManagedScreen;
 

@@ -1,4 +1,4 @@
-package com.gato.game;
+package com.gato.game.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;

@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.gato.game.GatoGame;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import de.eskalon.commons.screen.ManagedScreen;
+import de.eskalon.commons.screen.transition.impl.BlendingTransition;
 
 public class StartScreen extends ManagedScreen {
 
@@ -44,7 +45,7 @@ public class StartScreen extends ManagedScreen {
         newGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GatoGame.pushScreen(GameScreen.class, null);
+                GatoGame.pushScreen(GameScreen.class, BlendingTransition.class);
             }
         });
         newGame.addAction(actionButton(1f));

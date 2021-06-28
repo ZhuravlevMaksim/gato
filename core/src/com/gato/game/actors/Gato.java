@@ -1,4 +1,4 @@
-package com.gato.game.screen;
+package com.gato.game.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,10 +14,10 @@ public class Gato extends Image {
     Animation<TextureRegion> walkAnimation;
     float stateTime;
 
-    int width = 280;
-    int height = 160;
-    float x = 0;
-    float y = 18;
+    public int width = 280;
+    public int height = 160;
+    public float x = 0;
+    public float y = 18;
     TextureRegion keyFrame;
 
     public Gato() {

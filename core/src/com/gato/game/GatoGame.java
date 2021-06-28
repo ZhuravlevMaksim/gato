@@ -27,7 +27,7 @@ public class GatoGame extends ManagedGame<ManagedScreen, ScreenTransition> {
         screenManager.addScreen(StartScreen.class.getName(), new StartScreen());
         screenManager.addScreen(GameScreen.class.getName(), new GameScreen());
 
-        screenManager.addScreenTransition(BlendingTransition.class.getName(), new BlendingTransition(batch, 1F, Interpolation.pow2In));
+        screenManager.addScreenTransition(BlendingTransition.class.getName(), new BlendingTransition(batch, 2F, Interpolation.pow2In));
         screenManager.addScreenTransition(SlidingOutTransition.class.getName(), new SlidingOutTransition(batch, SlidingDirection.DOWN, 0.35F));
         screenManager.addScreenTransition(HorizontalSlicingTransition.class.getName(), new HorizontalSlicingTransition(batch, 5, 1F, Interpolation.exp5In));
 

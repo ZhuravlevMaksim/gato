@@ -45,7 +45,7 @@ public class StartScreen extends ManagedScreen {
         newGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GatoGame.pushScreen(GameScreen.class, BlendingTransition.class);
+                GatoGame.pushSimpleZoom(GameScreen.class);
             }
         });
         newGame.addAction(actionButton(1f));

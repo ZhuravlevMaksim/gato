@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -17,10 +15,6 @@ import com.gato.game.actors.Birds;
 import com.gato.game.actors.Gato;
 import com.rafaskoberg.gdx.typinglabel.TypingLabel;
 import de.eskalon.commons.screen.ManagedScreen;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class GameScreen extends ManagedScreen {
 
@@ -39,8 +33,6 @@ public class GameScreen extends ManagedScreen {
     Stage stage;
     Birds birdsNest;
     Meow meow;
-
-    float ambient = .5f;
 
     @Override
     protected void create() {
@@ -61,7 +53,7 @@ public class GameScreen extends ManagedScreen {
         stage.addActor(meow);
         setText();
 
-        setMusic(0, "bensound-ukulele.mp3");
+        setMusic("bensound-ukulele.mp3");
     }
 
     @Override
@@ -110,7 +102,6 @@ public class GameScreen extends ManagedScreen {
         stage.draw();
 
         batch.end();
-
     }
 
     @Override
@@ -124,42 +115,11 @@ public class GameScreen extends ManagedScreen {
         music.dispose();
     }
 
-    private void setMusic(Integer initialDelay, String song) {
-
+    private void setMusic(String song) {
         music = Gdx.audio.newMusic(Gdx.files.internal(song));
         music.setLooping(true);
         music.setVolume(0.1f);
-
-        if (initialDelay > 0) {
-            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-            service.scheduleWithFixedDelay(new Runnable() {
-                float volume = 0;
-
-                @Override
-                public void run() {
-                    music.setVolume(volume += 0.05);
-                    music.play();
-                    if (volume >= 1) {
-                        service.shutdown();
-                    }
-                }
-            }, initialDelay, 1, TimeUnit.SECONDS);
-        } else {
-            music.play();
-        }
-
+        music.play();
     }
 
-    private FixtureDef fixture(float radius) {
-        CircleShape ballShape = new CircleShape();
-        ballShape.setRadius(radius);
-
-        FixtureDef def = new FixtureDef();
-        def.restitution = 0.3f;
-        def.friction = 0.01f;
-        def.shape = ballShape;
-        def.density = 0.2f;
-
-        return def;
-    }
 }

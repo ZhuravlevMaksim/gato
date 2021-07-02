@@ -12,7 +12,7 @@ buildscript {
         classpath 'org.wisepersist:gwt-gradle-plugin:1.0.13'
         classpath 'org.gretty:gretty:3.0.2'
         classpath 'com.android.tools.build:gradle:4.1.3'
-        
+        classpath "com.badlogicgames.gdx:gdx-tools:1.10.0"
 
     }
 }
@@ -78,9 +78,18 @@ project(":android") {
     }
 }
 
+import com.badlogic.gdx.tools.texturepacker.TexturePacker
+
+task texturePacker {
+    doLast {
+//        TexturePacker.process("${project.rootDir}/assets", "${project.rootDir}/android/assets/atlas", "atlas")
+    }
+}
+
 project(":core") {
     apply plugin: "java-library"
 
+    compileJava.dependsOn texturePacker
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -88,5 +97,6 @@ project(":core") {
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
         api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
         api 'com.github.crykn:libgdx-screenmanager:0.6.7'
+        api "com.badlogicgames.gdx:gdx-tools:1.10.0"
     }
 }

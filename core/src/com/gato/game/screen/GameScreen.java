@@ -1,112 +1,69 @@
 package com.gato.game.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.gato.game.Meow;
-import com.gato.game.actors.Birds;
-import com.gato.game.actors.Gato;
-import com.rafaskoberg.gdx.typinglabel.TypingLabel;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gato.game.BoundCamera;
 import de.eskalon.commons.screen.ManagedScreen;
 
-public class GameScreen extends ManagedScreen {
+public class GameScreen extends ManagedScreen implements InputProcessor {
 
-    OrthographicCamera camera;
+    private final Stage stage = new Stage(new ExtendViewport(1280, 720));
+    private final BoundCamera camera = new BoundCamera();
+    private final Viewport viewport = new FitViewport(640, 240, camera);
 
-    SpriteBatch batch;
+    private final SpriteBatch batch = new SpriteBatch();
+
+    float width = 6400;
+    float height = 2100;
+
+    float x = viewport.getWorldWidth() / 2f;
+    float y = viewport.getWorldHeight() / 2f;
+
     Texture bg;
     Music music;
 
-    static final float viewportWidth = 48;
-    static final float viewportHeight = 32;
-
-    TypingLabel label;
-
-    Gato gato;
-    Stage stage;
-    Birds birdsNest;
-    Meow meow;
-
     @Override
     protected void create() {
-
-        camera = new OrthographicCamera(viewportWidth, viewportHeight);
-        camera.position.set(0, viewportHeight / 2f, 0);
-        camera.update();
-        batch = new SpriteBatch();
-        bg = new Texture(Gdx.files.internal("bg.png"));
-        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-        bg.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        gato = new Gato();
-        birdsNest = new Birds();
-        meow = new Meow();
-
-        stage = new Stage(new ScreenViewport());
-        stage.addActor(gato);
-        stage.addActor(meow);
-        setText();
-
+        addInputProcessor(this);
+        setBackground();
+        setCamera(x, y);
         setMusic("bensound-ukulele.mp3");
     }
 
     @Override
-    public void hide() {
-
-    }
-
-    private void setText() {
-        Table table = new Table();
-        table.setFillParent(true);
-        label = new TypingLabel("{EASE}{SPEED=SLOWER}Hello{WAIT=2}, traveler{SPEED}.\n" +
-                "Your journey begins here {SPEED=0.2}{WAIT=2} with ... {SPEED=0.1}{SHAKE}gato{ENDSHAKE}.",
-                new Skin(Gdx.files.internal("uiskin.json")));
-
-        table.add(label).top().center().expand();
-
-        stage.addActor(table);
-    }
-
-    int sourceX = 0;
-
-    @Override
     public void render(float delta) {
         camera.update();
-
-        Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        camera.setPosition(x, y);
         batch.setProjectionMatrix(camera.combined);
 
-        if (sourceX > 1000000) sourceX = 0;
-        sourceX += 1;
-
         batch.begin();
-
         batch.disableBlending();
-        batch.draw(bg, -viewportWidth / 2, 0, 5, 5, 48, 32, 1, 1, 0, sourceX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false, false);
+        batch.draw(bg, 0, 0, width, height);
         batch.enableBlending();
-
-        birdsNest.getBirds().forEach(bird -> bird.draw(batch));
-
-        meow.setPosition(gato.x + gato.width - 40, gato.y + gato.height / 2f);
-
-
-        stage.act();
-        stage.draw();
-
         batch.end();
+
+        update(Gdx.graphics.getDeltaTime());
+    }
+
+    private void update(float delta) {
+        float v = delta * 400 * camera.zoom;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) x = x - v;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) x = x + v;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) y = y + v;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) y = y - v;
     }
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width, height, true);
     }
 
     @Override
@@ -122,4 +79,58 @@ public class GameScreen extends ManagedScreen {
         music.play();
     }
 
+    private void setBackground() {
+        bg = new Texture(Gdx.files.internal("bg.png"));
+    }
+
+    private void setCamera(float x, float y) {
+        camera.setPosition(x, y);
+        camera.update();
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        camera.zoom += 0.2 * amountY;
+        return true;
+    }
 }

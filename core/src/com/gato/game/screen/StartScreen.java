@@ -2,6 +2,8 @@ package com.gato.game.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -24,15 +26,21 @@ public class StartScreen extends ManagedScreen {
     private final Stage text = new Stage(new ExtendViewport(640, 480));
     private final Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
 
+    Texture bg;
+    private final SpriteBatch batch = new SpriteBatch();
+
     @Override
     protected void create() {
         addInputProcessor(text);
 
+        bg = new Texture(Gdx.files.internal("bg.png"));
+
         Table gameName = new Table();
         gameName.setFillParent(true);
 
-        TypingLabel typingLabel = new TypingLabel("{SHAKE}Gato{ENDSHAKE}", skin);
-        typingLabel.setFontScale(3);
+        TypingLabel typingLabel = new TypingLabel("{EASE}{SPEED=SLOWER}Hello{WAIT=1}, traveler{SPEED}.\n" +
+                "Your journey begins here {SPEED=0.4}{WAIT=1} with ... \n{SPEED=0.3}{SHAKE}Gato{ENDSHAKE}", skin);
+        typingLabel.setFontScale(2);
         gameName.add(typingLabel).padTop(40).padLeft(90).left().top().expand();
         text.addActor(gameName);
         gameName.addAction(Actions.sequence(Actions.moveBy(-2000, 0, 0),
@@ -80,6 +88,11 @@ public class StartScreen extends ManagedScreen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.448f, 0.449f, 0.247f, 1);
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+
+        batch.disableBlending();
+        batch.begin();
+        batch.draw(bg, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.end();
 
         text.getViewport().apply();
         text.act(delta);

@@ -30,6 +30,7 @@ allprojects {
         ashleyVersion = '1.7.3'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.1.0'
+        jbumpVersion = 'd6032bd27c'
     }
 
     repositories {
@@ -98,5 +99,6 @@ project(":core") {
         api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
         api 'com.github.crykn:libgdx-screenmanager:0.6.7'
         api "com.badlogicgames.gdx:gdx-tools:1.10.0"
+        api "com.github.tommyettinger:jbump:$jbumpVersion"
     }
 }
